@@ -1,12 +1,41 @@
 import { useEffect, useState } from "react";
+import * as csv from "csvtojson";
 
 const MainPage = () => {
   const [pairs, setPairs] = useState([{}]);
   const [data, setData] = useState(null);
 
   const calculatePairs = () => {
+    const today = new Date();
     console.table(data)
-    
+    const projects = []
+    data.forEach((pr) => {
+      if (!projects.includes(pr.project_id)) projects.push(pr.project_id)
+    })
+    const calculatedPairs = []
+    projects.forEach((pr) => {
+      const projectData = data.filter((d) => d.project_id === pr)
+      projectData.forEach((pd, index) => {
+        const emp1From = new Date(pd.date_from)
+        const emp1To = pd.date_to === 'NULL' ? new Date(today.setHours(0,0,0,0)) : new Date(pd.date_to)
+        
+        for (let i = index + 1; i < projectData.length; i++) {
+          const emp2From = new Date(projectData[i].date_from)
+          const emp2To = projectData[i].date_to === 'NULL' ? new Date(today.setHours(0,0,0,0)) : new Date(projectData[i].date_to)
+          if (emp1From > emp2To || emp1To < emp2From) return
+          const overlapStartDate = emp1From < emp2From ? emp2From : emp1From
+          const overlapEndDate = emp1To < emp2To ? emp1To : emp2To
+          const overlapDuration = Math.floor((overlapEndDate - overlapStartDate) / (1000 * 60 * 60 * 24))
+          calculatedPairs.push({
+            employeeId1: pd.employee_id,
+            employeeId2: projectData[i].employee_id,
+            projectId: pr,
+            daysWorked: overlapDuration
+          })
+        }
+      })
+    })
+    setPairs(calculatedPairs)
   }
 
   useEffect(() => {
@@ -15,29 +44,15 @@ const MainPage = () => {
   }, [data])
 
   const handleOnFileUpload = (e) => {
-    const fileData = readCSVFile(e.target.files[0])
-    calculatePairs(fileData)
+    readCSVFile(e.target.files[0])
   };
 
   const readCSVFile = (file) => {
     const reader = new FileReader()
     reader.readAsText(file)
-    
-    reader.onload = (event) => {
-        const csvData = event.target.result
-        const dataRows = csvData.split("\n")
-        const formatted = []
-        dataRows.forEach((row) => {
-            const cells = row.split(",")
-            if (cells[0] === '"employee_id"' || cells[0] === "") return
-            formatted.push({
-                employeeId: cells[0],
-                projectId: cells[1],
-                dateFrom: cells[2].slice(1, -1),
-                dateTo: cells[3].slice(1, -2)
-            })
-        })
-        setData(formatted)
+    reader.onload = () => {
+      const csvString = reader.result
+      csv().fromString(csvString).then((json) => setData(json))
     }
   }
 
