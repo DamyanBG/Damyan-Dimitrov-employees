@@ -6,7 +6,7 @@ const Output = ({ thePair }) => (
   <section>
     <p>Output: {`${thePair[0]} ${thePair[1]} ${thePair[2]}`}</p>
   </section>
-)
+);
 
 const tableStyle = {
   headRow: {
