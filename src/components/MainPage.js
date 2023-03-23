@@ -6,14 +6,14 @@ const tableStyle = {
   headRow: {
     style: {
       background: "rgb(0, 191, 255)",
-    }
+    },
   },
   rows: {
     style: {
-      background: "rgb(220,220,220)"
-    }
-  }
-}
+      background: "rgb(220,220,220)",
+    },
+  },
+};
 
 const MainPage = () => {
   const [thePair, setThePair] = useState(null);
@@ -43,7 +43,9 @@ const MainPage = () => {
     });
     const calculatedPairs = [];
     projects.forEach((pr) => {
-      const projectData = data.filter((d) => d.ProjectID === pr).sort((a, b) => a.EmpID > b.EmpID ? 1 : -1);
+      const projectData = data
+        .filter((d) => d.ProjectID === pr)
+        .sort((a, b) => (a.EmpID > b.EmpID ? 1 : -1));
       projectData.forEach((pd, index) => {
         const emp1From = new Date(pd.DateFrom);
         const emp1To =
@@ -60,9 +62,10 @@ const MainPage = () => {
           if (emp1From > emp2To || emp1To < emp2From) return;
           const overlapStartDate = emp1From < emp2From ? emp2From : emp1From;
           const overlapEndDate = emp1To < emp2To ? emp1To : emp2To;
-          const overlapDuration = Math.floor(
-            (overlapEndDate - overlapStartDate) / (1000 * 60 * 60 * 24)
-          );
+          const overlapDuration =
+            Math.floor(
+              (overlapEndDate - overlapStartDate) / (1000 * 60 * 60 * 24)
+            ) + 1;
           calculatedPairs.push({
             employeeId1: pd.EmpID,
             employeeId2: projectData[i].EmpID,
@@ -86,8 +89,9 @@ const MainPage = () => {
   }, [pairs, findThePair]);
 
   const handleOnFileUpload = (e) => {
-    if (!e.target.files.length > 0) return
-    readCSVFile(e.target.files[0]);
+    const file = e.target.files[0];
+    if (!file || file.type !== "text/csv") return;
+    readCSVFile(file);
   };
 
   const readCSVFile = (file) => {
@@ -106,7 +110,7 @@ const MainPage = () => {
       <h3>Upload your CSV file</h3>
       <input type="file" accept=".csv" onChange={handleOnFileUpload} />
 
-      <section style={{ width: "60vw", marginLeft: "auto", marginRight: "auto", marginTop: "40px" }}>
+      <section style={{ width: "60vw", margin: "40px auto 60px auto" }}>
         {thePair && pairs.length > 0 && (
           <DataTable
             columns={[
@@ -128,9 +132,11 @@ const MainPage = () => {
               },
             ]}
             data={pairs.filter(
-              (p) => p.employeeId1 === thePair[0] && p.employeeId2 === thePair[1]
+              (p) =>
+                p.employeeId1 === thePair[0] && p.employeeId2 === thePair[1]
             )}
             customStyles={tableStyle}
+            pagination
           />
         )}
       </section>
