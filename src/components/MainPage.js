@@ -39,24 +39,24 @@ const MainPage = () => {
     const today = new Date();
     const projects = [];
     data.forEach((pr) => {
-      if (!projects.includes(pr.project_id)) projects.push(pr.project_id);
+      if (!projects.includes(pr.ProjectID)) projects.push(pr.ProjectID);
     });
     const calculatedPairs = [];
     projects.forEach((pr) => {
-      const projectData = data.filter((d) => d.project_id === pr).sort((a, b) => a.employee_id > b.employee_id ? 1 : -1);
+      const projectData = data.filter((d) => d.ProjectID === pr).sort((a, b) => a.EmpID > b.EmpID ? 1 : -1);
       projectData.forEach((pd, index) => {
-        const emp1From = new Date(pd.date_from);
+        const emp1From = new Date(pd.DateFrom);
         const emp1To =
-          pd.date_to === "NULL"
+          pd.DateTo === "NULL"
             ? new Date(today.setHours(0, 0, 0, 0))
-            : new Date(pd.date_to);
+            : new Date(pd.DateTo);
 
         for (let i = index + 1; i < projectData.length; i++) {
-          const emp2From = new Date(projectData[i].date_from);
+          const emp2From = new Date(projectData[i].DateFrom);
           const emp2To =
-            projectData[i].date_to === "NULL"
+            projectData[i].DateTo === "NULL"
               ? new Date(today.setHours(0, 0, 0, 0))
-              : new Date(projectData[i].date_to);
+              : new Date(projectData[i].DateTo);
           if (emp1From > emp2To || emp1To < emp2From) return;
           const overlapStartDate = emp1From < emp2From ? emp2From : emp1From;
           const overlapEndDate = emp1To < emp2To ? emp1To : emp2To;
@@ -64,8 +64,8 @@ const MainPage = () => {
             (overlapEndDate - overlapStartDate) / (1000 * 60 * 60 * 24)
           );
           calculatedPairs.push({
-            employeeId1: pd.employee_id,
-            employeeId2: projectData[i].employee_id,
+            employeeId1: pd.EmpID,
+            employeeId2: projectData[i].EmpID,
             projectId: pr,
             daysWorked: overlapDuration,
           });
