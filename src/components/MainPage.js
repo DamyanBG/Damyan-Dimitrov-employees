@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import * as csv from "csvtojson";
 
 const MainPage = () => {
   const [pairs, setPairs] = useState([{}]);
   const [data, setData] = useState(null);
 
-  const calculatePairs = () => {
+  const calculatePairs = useCallback(() => {
     const today = new Date();
     console.table(data)
     const projects = []
@@ -36,12 +36,12 @@ const MainPage = () => {
       })
     })
     setPairs(calculatedPairs)
-  }
+  }, [data])
 
   useEffect(() => {
     if (!data) return
     calculatePairs()
-  }, [data])
+  }, [data, calculatePairs])
 
   const handleOnFileUpload = (e) => {
     readCSVFile(e.target.files[0])
