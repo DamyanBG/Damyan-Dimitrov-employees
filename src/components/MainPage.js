@@ -2,6 +2,12 @@ import { useEffect, useState, useCallback } from "react";
 import * as csv from "csvtojson";
 import DataTable from "react-data-table-component";
 
+const Output = ({ thePair }) => (
+  <section>
+    <p>Output: {`${thePair[0]} ${thePair[1]} ${thePair[2]}`}</p>
+  </section>
+)
+
 const tableStyle = {
   headRow: {
     style: {
@@ -32,7 +38,7 @@ const MainPage = () => {
     const max = Object.keys(pairsSummarize).reduce((a, b) =>
       pairsSummarize[a] > pairsSummarize[b] ? a : b
     );
-    setThePair(max.split("-"));
+    setThePair([...max.split("-"), pairsSummarize[max]]);
   }, [pairs]);
 
   const calculatePairs = useCallback(() => {
@@ -109,6 +115,8 @@ const MainPage = () => {
     <div>
       <h3>Upload your CSV file</h3>
       <input type="file" accept=".csv" onChange={handleOnFileUpload} />
+
+      {thePair && <Output thePair={thePair} />}
 
       <section style={{ width: "60vw", margin: "40px auto 60px auto" }}>
         {thePair && pairs.length > 0 && (
