@@ -43,7 +43,7 @@ const MainPage = () => {
     });
     const calculatedPairs = [];
     projects.forEach((pr) => {
-      const projectData = data.filter((d) => d.project_id === pr);
+      const projectData = data.filter((d) => d.project_id === pr).sort((a, b) => a.employee_id > b.employee_id ? 1 : -1);
       projectData.forEach((pd, index) => {
         const emp1From = new Date(pd.date_from);
         const emp1To =
@@ -120,11 +120,11 @@ const MainPage = () => {
               },
               {
                 name: "Project ID",
-                cell: (row) => row.employeeId1,
+                cell: (row) => row.projectId,
               },
               {
                 name: "Days worked",
-                cell: (row) => row.employeeId1,
+                cell: (row) => row.daysWorked,
               },
             ]}
             data={pairs.filter(
